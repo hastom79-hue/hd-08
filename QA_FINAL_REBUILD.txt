@@ -1,0 +1,31 @@
+HDPS FINAL QA - 2026-08-12
+============================================================
+[PASS] 메인 타이틀: 새로 정립하다
+[PASS] 메인 타이틀: 새로 쓰다 제거
+[PASS] 품질 순서
+[PASS] 운영 안정성 순서
+[PASS] 지속 개선 순서
+[PASS] 적시생산 순서
+[PASS] ACTION 정확 문구
+[PASS] CI 표기
+[PASS] LEAN 영문 풀네임
+[PASS] 브루마블 카드 클래스 6개 :: 6
+[PASS] 현장소그룹활동 포함
+[PASS] 생산지원 조직 메시지
+[PASS] 일상 내재화 메시지
+[PASS] 생산지원 FULL SUPPORT
+[PASS] 피라미드 구조 5단
+[PASS] HDPS center 존재
+[PASS] 메인 타이틀 실제 1줄 렌더 :: height=51.96875, fs=46px
+[PASS] Framework 실제 수평 배치
+[PASS] 원칙명 확대 실제 적용 :: 23px
+[PASS] 모듈명 확대 실제 적용 :: 13.5px
+[PASS] 심볼 HDPS > 고객만족 위계 :: HDPS=42px, 고객만족=14px
+[PASS] 브루마블 카드 CSS 실제 적용 :: 9px
+[PASS] 브루마블 카드 JS hover 실제 작동 :: matrix3d(1.00794, -6.63e-14, 5.39289e-07, 0, 0, 1.00794, 1.23916e-07, 0, -5.35039e-07, -1.2294e-07, 1, 0, 0, 2.15741, 0, 1)
+[PASS] Framework JS 연동 강조
+[PASS] LEAN 카드 JS focus 효과
+[PASS] 피라미드 JS 5단 등장 :: 5
+[PASS] JS 런타임 오류 없음
+
+TOTAL: 27/27 PASS
