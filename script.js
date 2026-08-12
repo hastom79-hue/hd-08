@@ -1,136 +1,158 @@
 const sections=[...document.querySelectorAll('main section[id]')];
 const bookmarks=[...document.querySelectorAll('.bookmark')];
+const navLinks=[...document.querySelectorAll('.topnav a')];
 const progress=document.getElementById('progress');
 const backtop=document.getElementById('backtop');
-
-bookmarks.forEach(b=>b.addEventListener('click',()=>{
-  const el=b.dataset.target==='top'?document.getElementById('top'):document.getElementById(b.dataset.target);
-  el.scrollIntoView({behavior:'smooth',block:'start'});
-}));
+const topbar=document.querySelector('.topbar');
 
 function scrollUI(){
   const max=document.documentElement.scrollHeight-innerHeight;
-  progress.style.width=(max?scrollY/max*100:0)+'%';
-  backtop.classList.toggle('show',scrollY>500);
+  if(progress) progress.style.width=(max?scrollY/max*100:0)+'%';
+  backtop?.classList.toggle('show',scrollY>520);
+  topbar?.classList.toggle('scrolled',scrollY>28);
   let current='top';
-  sections.forEach(s=>{if(scrollY+innerHeight*.35>=s.offsetTop) current=s.id});
+  sections.forEach(s=>{if(scrollY+innerHeight*.38>=s.offsetTop) current=s.id});
   bookmarks.forEach(b=>b.classList.toggle('active',b.dataset.target===current));
+  navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+current));
 }
-addEventListener('scroll',scrollUI,{passive:true});scrollUI();
-backtop.onclick=()=>scrollTo({top:0,behavior:'smooth'});
+addEventListener('scroll',scrollUI,{passive:true});
+scrollUI();
+backtop?.addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
+bookmarks.forEach(b=>b.addEventListener('click',()=>{
+  const target=b.dataset.target==='top'?document.getElementById('top'):document.getElementById(b.dataset.target);
+  target?.scrollIntoView({behavior:'smooth',block:'start'});
+}));
 
-const revealObserver=new IntersectionObserver(es=>es.forEach(e=>{
-  if(e.isIntersecting){e.target.classList.add('in');revealObserver.unobserve(e.target)}
-}),{threshold:.12});
-document.querySelectorAll('.reveal').forEach(e=>revealObserver.observe(e));
+const revealItems=[...document.querySelectorAll('.reveal')];
+if('IntersectionObserver' in window){
+  const revealObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{
+    if(entry.isIntersecting){entry.target.classList.add('in');revealObserver.unobserve(entry.target)}
+  }),{threshold:.12,rootMargin:'0px 0px -5%'});
+  revealItems.forEach(el=>revealObserver.observe(el));
+}else revealItems.forEach(el=>el.classList.add('in'));
 
-const navLinks=[...document.querySelectorAll('.topnav a')];
-const navObserver=new IntersectionObserver(es=>es.forEach(e=>{
- if(e.isIntersecting)navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id));
-}),{rootMargin:'-35% 0px -55% 0px'});
-sections.forEach(s=>navObserver.observe(s));
-
-/* ===== HDPS INTERACTION LAYER ===== */
-const topbar=document.querySelector('.topbar');
-const frameworkHexes=[...document.querySelectorAll('.framework-shell .hex')];
-const cards=[...document.querySelectorAll('.card')];
 const steps=[...document.querySelectorAll('.step')];
+if('IntersectionObserver' in window){
+  const stepObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{
+    if(entry.isIntersecting){entry.target.classList.add('active');stepObserver.unobserve(entry.target)}
+  }),{threshold:.45});
+  steps.forEach(step=>stepObserver.observe(step));
+}else steps.forEach(step=>step.classList.add('active'));
 
-function updateChrome(){
-  topbar?.classList.toggle('scrolled',scrollY>35);
+/* Framework: center-to-principle relationship lines */
+const frameworkShell=document.querySelector('.framework-shell');
+const hdpsSymbol=document.querySelector('.hdps-symbol');
+const frameworkHexes=[...document.querySelectorAll('.framework-shell .hex')];
+const moduleCards=[...document.querySelectorAll('.module-card')];
+
+if(hdpsSymbol && !hdpsSymbol.querySelector('.con-top')){
+  const line=document.createElement('span');
+  line.className='framework-connector con-top';
+  line.setAttribute('aria-hidden','true');
+  hdpsSymbol.prepend(line);
 }
-addEventListener('scroll',updateChrome,{passive:true});
-updateChrome();
+const connectorMap={team:'.con-top',q:'.con-top-left',j:'.con-top-right',ci:'.con-mid-left',o:'.con-mid-right',bottom:'.con-bottom'};
+const cardMap={team:0,bottom:1,q:2,o:3,ci:4,j:5};
+const keyOf=hex=>['team','q','j','ci','o','bottom'].find(k=>hex.classList.contains(k));
 
-/* Framework hover: highlight one principle and subtly dim the others */
+if(frameworkShell && 'IntersectionObserver' in window){
+  const frameworkObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{
+    if(entry.isIntersecting){frameworkShell.classList.add('framework-active');frameworkObserver.unobserve(entry.target)}
+  }),{threshold:.28});
+  frameworkObserver.observe(frameworkShell);
+}else frameworkShell?.classList.add('framework-active');
+
+function focusFramework(hex,on){
+  const key=keyOf(hex); if(!key) return;
+  const line=hdpsSymbol?.querySelector(connectorMap[key]);
+  const linked=moduleCards[cardMap[key]];
+  frameworkHexes.forEach(item=>item.classList.toggle('dimmed',on&&item!==hex));
+  hex.classList.toggle('focused',on);
+  line?.classList.toggle('line-active',on);
+  moduleCards.forEach(card=>{
+    card.classList.toggle('linked-active',on&&card===linked);
+    card.classList.toggle('linked-dim',on&&card!==linked);
+  });
+}
 frameworkHexes.forEach(hex=>{
-  hex.addEventListener('mouseenter',()=>{
-    frameworkHexes.forEach(x=>{if(x!==hex)x.classList.add('dimmed')});
-    hex.classList.add('focused');
-  });
-  hex.addEventListener('mouseleave',()=>{
-    frameworkHexes.forEach(x=>x.classList.remove('dimmed','focused'));
-  });
+  hex.tabIndex=0;
+  hex.addEventListener('mouseenter',()=>focusFramework(hex,true));
+  hex.addEventListener('mouseleave',()=>focusFramework(hex,false));
+  hex.addEventListener('focus',()=>focusFramework(hex,true));
+  hex.addEventListener('blur',()=>focusFramework(hex,false));
 });
 
-/* Small pointer parallax on desktop cards */
-function enableCardTilt(){
-  if(matchMedia('(pointer:fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches){
-    cards.forEach(card=>{
+/* Module showcase: concise promotional cards */
+const moduleFeatures=[...document.querySelectorAll('.module-feature')];
+function highlightModule(index,{scroll=false}={}){
+  moduleFeatures.forEach((feature,i)=>feature.classList.toggle('is-active',i===index));
+  const target=moduleFeatures[index];
+  if(scroll&&target) target.scrollIntoView({behavior:'smooth',block:'center'});
+}
+moduleFeatures.forEach((feature,index)=>{
+  feature.addEventListener('mouseenter',()=>highlightModule(index));
+  feature.addEventListener('mouseleave',()=>feature.classList.remove('is-active'));
+});
+
+/* Group card order -> concise module cards */
+moduleCards.forEach((card,index)=>{
+  card.tabIndex=0; card.setAttribute('role','button');
+  const title=card.querySelector('h4')?.textContent?.trim()||'HDPS';
+  card.setAttribute('aria-label',title+' 모듈 보기');
+  const go=()=>highlightModule(index,{scroll:true});
+  card.addEventListener('click',go);
+  card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}});
+});
+
+/* Arrow-key section navigation */
+document.addEventListener('keydown',e=>{
+  if(!['ArrowDown','ArrowUp'].includes(e.key)||['INPUT','TEXTAREA','BUTTON','A'].includes(document.activeElement?.tagName)) return;
+  let current=0;
+  sections.forEach((s,i)=>{if(scrollY+innerHeight*.38>=s.offsetTop) current=i});
+  const next=e.key==='ArrowDown'?Math.min(current+1,sections.length-1):Math.max(current-1,0);
+  if(next!==current){e.preventDefault();sections[next].scrollIntoView({behavior:'smooth',block:'start'})}
+});
+
+/* ===== Board-card interaction for HDPS module showcase ===== */
+(function(){
+  const cards=[...document.querySelectorAll('.module-feature')];
+  if(!cards.length) return;
+  const fine=matchMedia('(pointer:fine)').matches;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  cards.forEach((card,index)=>{
+    card.style.setProperty('--card-delay',`${index*70}ms`);
+
+    if(fine && !reduced){
       card.addEventListener('pointermove',e=>{
         const r=card.getBoundingClientRect();
-        const x=(e.clientX-r.left)/r.width-.5;
-        const y=(e.clientY-r.top)/r.height-.5;
-        card.style.transform=`perspective(700px) rotateX(${-y*2.5}deg) rotateY(${x*3}deg) translateY(-5px)`;
+        const px=(e.clientX-r.left)/r.width-.5;
+        const py=(e.clientY-r.top)/r.height-.5;
+        card.style.transform=`translateY(-7px) rotateX(${-py*3.2}deg) rotateY(${px*4.5}deg)`;
+      });
+      card.addEventListener('pointerenter',()=>{
+        card.classList.remove('card-glint');
+        void card.offsetWidth;
+        card.classList.add('card-glint');
       });
       card.addEventListener('pointerleave',()=>{
         card.style.transform='';
+        card.classList.remove('card-glint');
       });
-    });
-  }
-}
-enableCardTilt();
-
-/* Action steps get a clean active state as they enter the viewport */
-if('IntersectionObserver' in window){
-  const stepObserver=new IntersectionObserver(entries=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){
-        entry.target.classList.add('active');
-        stepObserver.unobserve(entry.target);
-      }
-    });
-  },{threshold:.45});
-  steps.forEach(s=>stepObserver.observe(s));
-}else{
-  steps.forEach(s=>s.classList.add('active'));
-}
-
-/* Keyboard-friendly section navigation */
-document.addEventListener('keydown',e=>{
-  if(e.key!=='ArrowDown' && e.key!=='ArrowUp') return;
-  if(['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)) return;
-  let current=sections.findIndex(s=>scrollY+innerHeight*.35>=s.offsetTop);
-  if(current<0) current=0;
-  const next=e.key==='ArrowDown'?Math.min(current+1,sections.length-1):Math.max(current-1,0);
-  if(next!==current){
-    e.preventDefault();
-    sections[next].scrollIntoView({behavior:'smooth',block:'start'});
-  }
-});
-
-/* ===== MODULE EXPLORER — 누구나 쉽게 펼쳐보는 HDPS ===== */
-const moduleFeatures=[...document.querySelectorAll('.module-feature')];
-const moduleCards=[...document.querySelectorAll('.module-card')];
-
-function openModule(index,{scroll=false}={}){
-  const target=moduleFeatures[index];
-  if(!target) return;
-  moduleFeatures.forEach((feature,i)=>{
-    const active=i===index;
-    feature.classList.toggle('is-active',active);
-    feature.querySelector('.module-feature-head')?.setAttribute('aria-expanded',String(active));
+    }
   });
-  if(scroll) target.scrollIntoView({behavior:'smooth',block:'center'});
-}
 
-moduleFeatures.forEach((feature,index)=>{
-  feature.querySelector('.module-feature-head')?.addEventListener('click',()=>{
-    const wasOpen=feature.classList.contains('is-active');
-    if(wasOpen){
-      feature.classList.remove('is-active');
-      feature.querySelector('.module-feature-head')?.setAttribute('aria-expanded','false');
-    }else openModule(index);
-  });
-});
-
-/* 6대 원칙 카드에서 바로 해당 설명으로 이동 */
-const detailOrder=[0,1,2,5,3,4];
-moduleCards.forEach((card,index)=>{
-  card.tabIndex=0;
-  card.setAttribute('role','button');
-  card.setAttribute('aria-label',`${card.querySelector('h4')?.textContent || 'HDPS'} 상세 보기`);
-  const go=()=>openModule(detailOrder[index],{scroll:true});
-  card.addEventListener('click',go);
-  card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});
-});
+  if('IntersectionObserver' in window && !reduced){
+    const observer=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(!entry.isIntersecting) return;
+        const card=entry.target;
+        const i=cards.indexOf(card);
+        setTimeout(()=>card.classList.add('is-active'),Math.max(0,i)*70);
+        setTimeout(()=>card.classList.remove('is-active'),900+Math.max(0,i)*70);
+        observer.unobserve(card);
+      });
+    },{threshold:.28});
+    cards.forEach(card=>observer.observe(card));
+  }
+})();
