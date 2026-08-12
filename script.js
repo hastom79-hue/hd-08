@@ -113,50 +113,6 @@ document.addEventListener('keydown',e=>{
   if(next!==current){e.preventDefault();sections[next].scrollIntoView({behavior:'smooth',block:'start'})}
 });
 
-/* ===== Board-card interaction for HDPS module showcase ===== */
-(function(){
-  const cards=[...document.querySelectorAll('.module-feature')];
-  if(!cards.length) return;
-  const fine=matchMedia('(pointer:fine)').matches;
-  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  cards.forEach((card,index)=>{
-    card.style.setProperty('--card-delay',`${index*70}ms`);
-
-    if(fine && !reduced){
-      card.addEventListener('pointermove',e=>{
-        const r=card.getBoundingClientRect();
-        const px=(e.clientX-r.left)/r.width-.5;
-        const py=(e.clientY-r.top)/r.height-.5;
-        card.style.transform=`translateY(-7px) rotateX(${-py*3.2}deg) rotateY(${px*4.5}deg)`;
-      });
-      card.addEventListener('pointerenter',()=>{
-        card.classList.remove('card-glint');
-        void card.offsetWidth;
-        card.classList.add('card-glint');
-      });
-      card.addEventListener('pointerleave',()=>{
-        card.style.transform='';
-        card.classList.remove('card-glint');
-      });
-    }
-  });
-
-  if('IntersectionObserver' in window && !reduced){
-    const observer=new IntersectionObserver(entries=>{
-      entries.forEach(entry=>{
-        if(!entry.isIntersecting) return;
-        const card=entry.target;
-        const i=cards.indexOf(card);
-        setTimeout(()=>card.classList.add('is-active'),Math.max(0,i)*70);
-        setTimeout(()=>card.classList.remove('is-active'),900+Math.max(0,i)*70);
-        observer.unobserve(card);
-      });
-    },{threshold:.28});
-    cards.forEach(card=>observer.observe(card));
-  }
-})();
-
 /* =========================================================
    FINAL BOARD-CARD INTERACTION
    Independent from legacy .module-feature transforms
