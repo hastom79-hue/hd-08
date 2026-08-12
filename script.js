@@ -156,3 +156,50 @@ document.addEventListener('keydown',e=>{
     cards.forEach(card=>observer.observe(card));
   }
 })();
+
+/* =========================================================
+   FINAL BOARD-CARD INTERACTION
+   Independent from legacy .module-feature transforms
+   ========================================================= */
+(function(){
+  const cards=[...document.querySelectorAll('.board-card')];
+  if(!cards.length) return;
+  const fine=matchMedia('(pointer:fine)').matches;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  cards.forEach((card,index)=>{
+    card.dataset.boardIndex=String(index+1).padStart(2,'0');
+    if(fine && !reduced){
+      card.addEventListener('pointerenter',()=>{
+        card.classList.remove('is-glint');
+        void card.offsetWidth;
+        card.classList.add('is-glint','board-focus');
+      });
+      card.addEventListener('pointermove',e=>{
+        const r=card.getBoundingClientRect();
+        const x=(e.clientX-r.left)/r.width-.5;
+        const y=(e.clientY-r.top)/r.height-.5;
+        card.style.setProperty('transform',`translateY(-9px) rotateX(${-y*2.8}deg) rotateY(${x*3.8}deg) scale(1.012)`,'important');
+      });
+      card.addEventListener('pointerleave',()=>{
+        card.style.removeProperty('transform');
+        card.classList.remove('is-glint','board-focus');
+      });
+    }
+  });
+
+  if('IntersectionObserver' in window && !reduced){
+    const io=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(!entry.isIntersecting) return;
+        const card=entry.target;
+        card.animate([
+          {opacity:.25,transform:'translateY(26px) scale(.97)'},
+          {opacity:1,transform:'translateY(0) scale(1)'}
+        ],{duration:520,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'});
+        io.unobserve(card);
+      });
+    },{threshold:.18});
+    cards.forEach(card=>io.observe(card));
+  }
+})();
