@@ -203,3 +203,144 @@ document.addEventListener('keydown',e=>{
     cards.forEach(card=>io.observe(card));
   }
 })();
+
+
+/* ===== LEAN MINDSET IMPACT INTERACTION ===== */
+(function(){
+  const cards=[...document.querySelectorAll('.principle-impact')];
+  if(!cards.length) return;
+  const fine=matchMedia('(pointer:fine)').matches;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  cards.forEach((card,index)=>{
+    card.style.setProperty('--impact-delay',`${index*85}ms`);
+    if(fine && !reduced){
+      card.addEventListener('pointermove',e=>{
+        const r=card.getBoundingClientRect();
+        const x=(e.clientX-r.left)/r.width;
+        const y=(e.clientY-r.top)/r.height;
+        const rx=(.5-y)*3.6;
+        const ry=(x-.5)*4.4;
+        card.style.setProperty('--mx',`${x*100}%`);
+        card.style.setProperty('--my',`${y*100}%`);
+        card.style.transform=`translateY(-9px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+      });
+      card.addEventListener('pointerenter',()=>{
+        cards.forEach(c=>c.classList.toggle('principle-dim',c!==card));
+        card.classList.add('principle-focus');
+      });
+      card.addEventListener('pointerleave',()=>{
+        card.style.transform='';
+        card.style.setProperty('--mx','50%');
+        card.style.setProperty('--my','50%');
+        cards.forEach(c=>c.classList.remove('principle-dim','principle-focus'));
+      });
+    }
+  });
+
+  if('IntersectionObserver' in window && !reduced){
+    const io=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(!entry.isIntersecting) return;
+        const card=entry.target;
+        const i=cards.indexOf(card);
+        setTimeout(()=>{
+          card.classList.add('is-impact');
+          card.animate([
+            {opacity:0,transform:'translateY(34px) scale(.965)'},
+            {opacity:1,transform:'translateY(0) scale(1)'}
+          ],{duration:620,easing:'cubic-bezier(.18,.75,.2,1)',fill:'both'});
+          setTimeout(()=>card.classList.remove('is-impact'),850);
+        },Math.max(0,i)*90);
+        io.unobserve(card);
+      });
+    },{threshold:.16});
+    cards.forEach(card=>io.observe(card));
+  }
+})();
+
+/* ===== TARGET VALUE PYRAMID INTERACTION ===== */
+(function(){
+  const section=document.querySelector('.target-impact');
+  const levels=[...document.querySelectorAll('.value-pyramid .pyramid-level')];
+  const flow=[...document.querySelectorAll('.target-flow-item')];
+  if(!section||!levels.length) return;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const activate=()=>{
+    section.classList.add('target-live');
+    levels.slice().reverse().forEach((level,i)=>{
+      if(reduced){level.classList.add('is-visible');return;}
+      setTimeout(()=>{
+        level.classList.add('is-visible','is-pulse');
+        setTimeout(()=>level.classList.remove('is-pulse'),720);
+      },i*180);
+    });
+    flow.forEach((item,i)=>{
+      if(reduced) return;
+      item.animate([
+        {opacity:.2,transform:'translateX(-18px)'},
+        {opacity:1,transform:'translateX(0)'}
+      ],{duration:500,delay:200+i*120,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'});
+    });
+  };
+
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(!entry.isIntersecting) return;
+        activate(); io.disconnect();
+      });
+    },{threshold:.28});
+    io.observe(section);
+  }else activate();
+
+  if(!reduced && matchMedia('(pointer:fine)').matches){
+    const pyramid=document.querySelector('.value-pyramid');
+    section.addEventListener('pointermove',e=>{
+      const r=section.getBoundingClientRect();
+      const x=(e.clientX-r.left)/r.width-.5;
+      const y=(e.clientY-r.top)/r.height-.5;
+      if(pyramid) pyramid.style.transform=`rotateX(${-y*1.8}deg) rotateY(${x*2.2}deg)`;
+    });
+    section.addEventListener('pointerleave',()=>{if(pyramid)pyramid.style.transform='';});
+  }
+})();
+
+/* ===== FINAL TARGET: SUPPORT + DAILY EMBEDDING EFFECTS ===== */
+(function(){
+  const section=document.querySelector('.target-impact');
+  if(!section) return;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const support=section.querySelector('.support-message');
+  const loopSteps=[...section.querySelectorAll('.daily-loop-step')];
+  const supportTags=[...section.querySelectorAll('.support-band span')];
+  const manifesto=section.querySelector('.pyramid-manifesto');
+
+  const run=()=>{
+    if(reduced) return;
+    loopSteps.forEach((el,i)=>el.animate([
+      {opacity:0,transform:getComputedStyle(el).transform+' scale(.82)'},
+      {opacity:1,transform:getComputedStyle(el).transform+' scale(1)'}
+    ],{duration:430,delay:500+i*120,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'}));
+    supportTags.forEach((el,i)=>el.animate([
+      {opacity:0,transform:'translateY(-10px)'},
+      {opacity:1,transform:'translateY(0)'}
+    ],{duration:360,delay:900+i*70,easing:'ease-out',fill:'both'}));
+    support?.animate([
+      {opacity:.15,transform:'translateX(-18px)'},
+      {opacity:1,transform:'translateX(0)'}
+    ],{duration:620,delay:900,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'});
+    manifesto?.animate([
+      {opacity:0,transform:'translateY(16px) scale(.96)'},
+      {opacity:1,transform:'translateY(0) scale(1)'}
+    ],{duration:650,delay:1500,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'});
+  };
+
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver(entries=>entries.forEach(entry=>{
+      if(entry.isIntersecting){run();io.disconnect();}
+    }),{threshold:.3});
+    io.observe(section);
+  }else run();
+})();
