@@ -124,3 +124,56 @@ if(fine&&!reduced){
   });
   $('.value-pyramid-wrap')?.addEventListener('pointerleave',()=>{if(pyramid)pyramid.style.transform=''});
 }
+
+/* =========================================================
+   ACTION — sequential rise + focus interaction
+   ========================================================= */
+(()=>{
+  const action=document.querySelector('.action');
+  const actionSteps=[...document.querySelectorAll('.action-step')];
+  if(!action || !actionSteps.length) return;
+
+  let started=false;
+  const activate=()=>{
+    if(started) return;
+    started=true;
+    action.classList.add('action-live');
+    actionSteps.forEach((step,i)=>setTimeout(()=>step.classList.add('action-on'),140+i*190));
+  };
+
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{if(entry.isIntersecting){activate();io.disconnect();}});
+    },{threshold:.24});
+    io.observe(action);
+  }else activate();
+
+  actionSteps.forEach(step=>{
+    step.addEventListener('pointerenter',()=>{
+      actionSteps.forEach(x=>x.classList.toggle('action-muted',x!==step));
+      step.classList.add('action-focus');
+    });
+    step.addEventListener('pointerleave',()=>{
+      actionSteps.forEach(x=>x.classList.remove('action-muted','action-focus'));
+    });
+  });
+})();
+
+/* Final mindset emphasis: support is an active force, not a side note */
+(()=>{
+  const target=document.querySelector('.target-impact');
+  const supportHero=document.querySelector('.support-hero');
+  const rails=[...document.querySelectorAll('.support-rail')];
+  const supportLevel=document.querySelector('.support-level');
+  if(!target) return;
+  const energize=()=>{
+    target.classList.add('support-live');
+    supportHero?.classList.add('support-on');
+    rails.forEach((r,i)=>setTimeout(()=>r.classList.add('support-on'),180+i*220));
+    setTimeout(()=>supportLevel?.classList.add('is-pulse'),780);
+  };
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){energize();io.disconnect()}}),{threshold:.2});
+    io.observe(target);
+  }else energize();
+})();
