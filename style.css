@@ -277,3 +277,52 @@ footer{min-height:88px;padding:22px clamp(30px,6vw,100px);display:flex;align-ite
 @keyframes supportFlow{0%{transform:translate(-50%,-28%);opacity:.08}45%{opacity:.8}100%{transform:translate(-50%,28%);opacity:.08}}
 
 @media(max-width:760px){.support-hero strong{font-size:21px}.support-hero p{font-size:13px}.mindset-callout strong{font-size:16px}}
+
+
+/* =========================================================
+   FINAL KOREAN UI — visual treatment only
+   Original Korean wording/content is preserved unchanged.
+   ========================================================= */
+.module-card ul,
+.module-card ul:has(li:nth-child(4)){
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 7px;
+  align-items:center;
+}
+.module-card li,
+.module-card ul:has(li:nth-child(4)) li{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  flex:0 0 auto;
+  white-space:nowrap;
+  font-size:13.5px;
+  line-height:1.15;
+  padding:7px 10px;
+  letter-spacing:-.018em;
+}
+.module-label-icon{
+  display:inline-grid;
+  place-items:center;
+  flex:0 0 auto;
+  width:16px;
+  min-width:16px;
+  height:16px;
+  color:var(--green);
+  font-size:14px;
+  line-height:1;
+  font-weight:900;
+}
+@media(max-width:760px){
+  .module-card ul,
+  .module-card ul:has(li:nth-child(4)){
+    flex-wrap:wrap;
+    gap:7px 6px;
+  }
+  .module-card li,
+  .module-card ul:has(li:nth-child(4)) li{
+    font-size:12.6px;
+    padding:6px 9px;
+  }
+}

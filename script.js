@@ -211,3 +211,17 @@ if(fine&&!reduced){
     io.observe(target);
   }else energize();
 })();
+
+
+/* Korean module pills: add visual markers only; do not alter any label text */
+(()=>{
+  const marks=['★','♻','◎','↑','↔','✓','◉','◆','⑤','≡','⚙','⇄','↗','◇','⇢','↻','▣','≋','⇣'];
+  $$('.module-card li').forEach((el,i)=>{
+    if(el.querySelector(':scope > .module-label-icon')) return;
+    const icon=document.createElement('span');
+    icon.className='module-label-icon';
+    icon.setAttribute('aria-hidden','true');
+    icon.textContent=marks[i] || '•';
+    el.prepend(icon);
+  });
+})();
