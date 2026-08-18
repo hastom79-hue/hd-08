@@ -129,7 +129,7 @@ function activateTarget(){
   levels.slice().reverse().forEach((level,i)=>setTimeout(()=>{
     level.classList.add('is-visible','is-pulse');setTimeout(()=>level.classList.remove('is-pulse'),850);
   },reduced?0:i*210));
-  $$('.support-rail').forEach((rail,i)=>setTimeout(()=>rail.classList.add('rail-on'),reduced?0:400+i*260));
+  setTimeout(()=>$('.level-tags')?.classList.add('is-visible'),reduced?0:210+320);
 }
 if(target){
   if('IntersectionObserver' in window&&!reduced){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){activateTarget();io.disconnect()}}),{threshold:.23});io.observe(target)} else activateTarget();
@@ -142,6 +142,19 @@ if(fine&&!reduced){
   });
   $('.value-pyramid-wrap')?.addEventListener('pointerleave',()=>{if(pyramid)pyramid.style.transform=''});
 }
+
+/* Pyramid level: big bounce on click */
+levels.forEach(level=>{
+  level.tabIndex=0; level.setAttribute('role','button');
+  const bounce=()=>{
+    if(reduced) return;
+    level.classList.remove('is-bounce'); void level.offsetWidth;
+    level.classList.add('is-bounce');
+  };
+  level.addEventListener('click',bounce);
+  level.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();bounce();}});
+  level.addEventListener('animationend',e=>{if(e.animationName==='levelBounce')level.classList.remove('is-bounce');});
+});
 
 /* =========================================================
    ACTION — sequential rise + focus interaction
@@ -184,13 +197,11 @@ if(fine&&!reduced){
 (()=>{
   const target=document.querySelector('.target-impact');
   const supportHero=document.querySelector('.support-hero');
-  const rails=[...document.querySelectorAll('.support-rail')];
   const supportLevel=document.querySelector('.support-level');
   if(!target) return;
   const energize=()=>{
     target.classList.add('support-live');
     supportHero?.classList.add('support-on');
-    rails.forEach((r,i)=>setTimeout(()=>r.classList.add('support-on'),180+i*220));
     setTimeout(()=>supportLevel?.classList.add('is-pulse'),780);
   };
   if('IntersectionObserver' in window){
