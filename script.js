@@ -143,18 +143,20 @@ if(fine&&!reduced){
   $('.value-pyramid-wrap')?.addEventListener('pointerleave',()=>{if(pyramid)pyramid.style.transform=''});
 }
 
-/* Pyramid level: big bounce on click */
-levels.forEach(level=>{
-  level.tabIndex=0; level.setAttribute('role','button');
-  const bounce=()=>{
-    if(reduced) return;
-    level.classList.remove('is-bounce'); void level.offsetWidth;
-    level.classList.add('is-bounce');
-  };
-  level.addEventListener('click',bounce);
-  level.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();bounce();}});
-  level.addEventListener('animationend',e=>{if(e.animationName==='levelBounce')level.classList.remove('is-bounce');});
-});
+/* Pyramid level: big emphasis on hover proximity */
+if(fine&&!reduced){
+  const pyramidEl=$('.value-pyramid');
+  levels.forEach(level=>{
+    level.addEventListener('pointerenter',()=>{
+      pyramidEl?.classList.add('has-hover');
+      level.classList.add('level-hover');
+    });
+    level.addEventListener('pointerleave',()=>{
+      pyramidEl?.classList.remove('has-hover');
+      level.classList.remove('level-hover');
+    });
+  });
+}
 
 /* =========================================================
    ACTION — sequential rise + focus interaction
