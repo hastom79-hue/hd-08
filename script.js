@@ -149,6 +149,7 @@ if(fine&&!reduced){
 (()=>{
   const action=document.querySelector('.action');
   const actionSteps=[...document.querySelectorAll('.action-step')];
+  const mantraPhases=[...document.querySelectorAll('.mantra-phase')];
   if(!action || !actionSteps.length) return;
 
   let started=false;
@@ -157,6 +158,8 @@ if(fine&&!reduced){
     started=true;
     action.classList.add('action-live');
     actionSteps.forEach((step,i)=>setTimeout(()=>step.classList.add('action-on'),140+i*190));
+    const mantraStart=140+actionSteps.length*190+260;
+    mantraPhases.forEach((phase,i)=>setTimeout(()=>phase.classList.add('on'),reduced?0:mantraStart+i*180));
   };
 
   if('IntersectionObserver' in window){
