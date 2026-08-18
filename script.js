@@ -85,7 +85,7 @@ if(fine&&!reduced){
     card.addEventListener('pointerenter',()=>{card.classList.remove('is-glint');void card.offsetWidth;card.classList.add('is-glint','board-focus')});
     card.addEventListener('pointermove',e=>{
       const r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
-      card.style.transform=`translateY(-9px) rotateX(${-y*3.4}deg) rotateY(${x*4.5}deg) scale(1.012)`;
+      card.style.transform=`translateY(-14px) rotateX(${-y*6.5}deg) rotateY(${x*8}deg) scale(1.025)`;
     });
     card.addEventListener('pointerleave',()=>{card.style.transform='';card.classList.remove('is-glint','board-focus')});
   });
@@ -99,11 +99,28 @@ if(fine&&!reduced){
     card.addEventListener('pointermove',e=>{
       const r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
       card.style.setProperty('--mx',`${x*100}%`);card.style.setProperty('--my',`${y*100}%`);
-      card.style.transform=`translateY(-8px) rotateX(${(.5-y)*3}deg) rotateY(${(x-.5)*3.8}deg)`;
+      card.style.transform=`translateY(-12px) rotateX(${(.5-y)*5.5}deg) rotateY(${(x-.5)*7}deg) scale(1.015)`;
     });
     card.addEventListener('pointerleave',()=>{card.style.transform='';card.style.setProperty('--mx','50%');card.style.setProperty('--my','50%');principles.forEach(c=>c.classList.remove('principle-dim','principle-focus'))});
   });
 }
+
+/* Deal cards onto the board: staggered entrance for module & LEAN card grids */
+[$('.board-deck'),$('.principle-impact-grid')].forEach(group=>{
+  if(!group) return;
+  const cards=$$('.card-deal',group);
+  if(!cards.length) return;
+  const deal=()=>cards.forEach((c,i)=>setTimeout(()=>{
+    c.classList.add('in');
+    const settle=ev=>{ if(ev && ev.propertyName!=='transform') return; c.classList.add('dealt'); c.removeEventListener('transitionend',settle); };
+    c.addEventListener('transitionend',settle);
+    setTimeout(()=>settle(),900);
+  },reduced?0:i*95));
+  if('IntersectionObserver' in window && !reduced){
+    const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){deal();io.disconnect()}}),{threshold:.12});
+    io.observe(group);
+  }else deal();
+});
 
 /* Target pyramid: build from FIELD upward, then pulse support and DAILY loop */
 const target=$('.target-impact'), levels=$$('.value-pyramid .pyramid-level');
@@ -112,6 +129,7 @@ function activateTarget(){
   levels.slice().reverse().forEach((level,i)=>setTimeout(()=>{
     level.classList.add('is-visible','is-pulse');setTimeout(()=>level.classList.remove('is-pulse'),850);
   },reduced?0:i*210));
+  $$('.support-rail').forEach((rail,i)=>setTimeout(()=>rail.classList.add('rail-on'),reduced?0:400+i*260));
 }
 if(target){
   if('IntersectionObserver' in window&&!reduced){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){activateTarget();io.disconnect()}}),{threshold:.23});io.observe(target)} else activateTarget();
