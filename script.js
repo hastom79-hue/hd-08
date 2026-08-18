@@ -227,3 +227,15 @@ if(fine&&!reduced){
     el.prepend(icon);
   });
 })();
+
+/* Final Korean daily-action terminology — scoped only to the action mantra */
+(()=>{
+  const root=document.querySelector('.action-mantra');
+  if(!root) return;
+  const phases=[...root.querySelectorAll('.mantra-phase')];
+  const map={'발견':'현상 파악','사실':'사실 확인','표준':'표준화'};
+  phases.forEach(el=>{
+    const t=el.textContent.trim();
+    if(map[t]) el.textContent=map[t];
+  });
+})();
