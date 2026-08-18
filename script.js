@@ -105,25 +105,32 @@ if(fine&&!reduced){
   });
 }
 
-/* Target pyramid: build from FIELD upward, then pulse support and DAILY loop */
-const target=$('.target-impact'), levels=$$('.value-pyramid .pyramid-level');
-function activateTarget(){
-  target?.classList.add('target-live');
-  levels.slice().reverse().forEach((level,i)=>setTimeout(()=>{
-    level.classList.add('is-visible','is-pulse');setTimeout(()=>level.classList.remove('is-pulse'),850);
-  },reduced?0:i*210));
-}
-if(target){
-  if('IntersectionObserver' in window&&!reduced){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){activateTarget();io.disconnect()}}),{threshold:.23});io.observe(target)} else activateTarget();
-}
-if(fine&&!reduced){
-  const pyramid=$('.value-pyramid');
-  $('.value-pyramid-wrap')?.addEventListener('pointermove',e=>{
-    const r=e.currentTarget.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
-    if(pyramid)pyramid.style.transform=`rotateX(${-y*2.2}deg) rotateY(${x*2.7}deg)`;
-  });
-  $('.value-pyramid-wrap')?.addEventListener('pointerleave',()=>{if(pyramid)pyramid.style.transform=''});
-}
+/* =========================================================
+   FINALE — zigzag value-flow: staged reveal + progress fill
+   ========================================================= */
+(()=>{
+  const flow=$('.finale-flow');
+  const nodes=$$('.flow-node',flow||document);
+  if(!flow||!nodes.length) return;
+
+  const setProgress=()=>{
+    const on=nodes.filter(n=>n.classList.contains('flow-on')).length;
+    flow.style.setProperty('--flow-progress',(on/nodes.length*100)+'%');
+  };
+
+  const activate=()=>{
+    flow.classList.add('flow-live');
+    nodes.forEach((node,i)=>setTimeout(()=>{
+      node.classList.add('flow-on');
+      setProgress();
+    },reduced?0:i*220));
+  };
+
+  if('IntersectionObserver' in window && !reduced){
+    const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){activate();io.disconnect()}}),{threshold:.2});
+    io.observe(flow);
+  }else activate();
+})();
 
 /* =========================================================
    ACTION — sequential rise + focus interaction
@@ -161,19 +168,11 @@ if(fine&&!reduced){
 
 /* Final mindset emphasis: support is an active force, not a side note */
 (()=>{
-  const target=document.querySelector('.target-impact');
-  const supportHero=document.querySelector('.support-hero');
-  const rails=[...document.querySelectorAll('.support-rail')];
-  const supportLevel=document.querySelector('.support-level');
-  if(!target) return;
-  const energize=()=>{
-    target.classList.add('support-live');
-    supportHero?.classList.add('support-on');
-    rails.forEach((r,i)=>setTimeout(()=>r.classList.add('support-on'),180+i*220));
-    setTimeout(()=>supportLevel?.classList.add('is-pulse'),780);
-  };
-  if('IntersectionObserver' in window){
-    const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){energize();io.disconnect()}}),{threshold:.2});
-    io.observe(target);
+  const supportHero=document.querySelector('.finale .support-hero');
+  if(!supportHero) return;
+  const energize=()=>supportHero.classList.add('support-swept');
+  if('IntersectionObserver' in window && !reduced){
+    const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){energize();io.disconnect()}}),{threshold:.25});
+    io.observe(supportHero);
   }else energize();
 })();
