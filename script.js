@@ -157,9 +157,9 @@ if(fine&&!reduced){
     if(started) return;
     started=true;
     action.classList.add('action-live');
-    actionSteps.forEach((step,i)=>setTimeout(()=>step.classList.add('action-on'),140+i*190));
-    const mantraStart=140+actionSteps.length*190+260;
-    mantraPhases.forEach((phase,i)=>setTimeout(()=>phase.classList.add('on'),reduced?0:mantraStart+i*180));
+    mantraPhases.forEach((phase,i)=>setTimeout(()=>phase.classList.add('on'),reduced?0:120+i*160));
+    const stepsStart=120+mantraPhases.length*160+280;
+    actionSteps.forEach((step,i)=>setTimeout(()=>step.classList.add('action-on'),stepsStart+i*190));
   };
 
   if('IntersectionObserver' in window){

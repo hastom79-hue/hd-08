@@ -200,7 +200,7 @@ footer{min-height:88px;padding:22px clamp(30px,6vw,100px);display:flex;align-ite
 .action .step-tags span{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);color:#e7f0fb;font-size:9px;font-weight:800;transition:.22s}
 .action .action-step:hover .step-tags span{background:rgba(105,213,156,.12);border-color:rgba(105,213,156,.28)}
 .action-mantra{
-  position:relative;z-index:3;max-width:900px;margin:78px auto 0;padding:36px 44px;
+  position:relative;z-index:3;max-width:900px;margin:0 auto 56px;padding:36px 44px;
   display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;
   border-radius:28px;border:1px solid rgba(105,213,156,.32);
   background:linear-gradient(135deg,rgba(105,213,156,.14),rgba(255,255,255,.03));
@@ -228,7 +228,7 @@ footer{min-height:88px;padding:22px clamp(30px,6vw,100px);display:flex;align-ite
   .action-rise{grid-template-columns:1fr;gap:14px;padding:0}
   .action .action-step{min-height:0;padding:23px 20px}
   .action .step-copy{margin-top:18px}
-  .action-mantra{margin-top:44px;padding:26px 20px;border-radius:22px}
+  .action-mantra{margin:0 auto 32px;padding:26px 20px;border-radius:22px}
   .mantra-phase{font-size:19px}
   .mantra-flow{gap:9px}
   .mantra-flow i{font-size:14px}
